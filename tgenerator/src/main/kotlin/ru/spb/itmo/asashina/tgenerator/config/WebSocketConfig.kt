@@ -11,7 +11,7 @@ import ru.spb.itmo.asashina.tgenerator.handler.TransactionStreamWebSocketHandler
 class WebSocketConfig(private val streamHandler: TransactionStreamWebSocketHandler) : WebSocketConfigurer {
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        registry.addHandler(streamHandler, "/ws/transactions")
+        registry.addHandler(streamHandler, "/transactions")
             .setAllowedOrigins("*")
     }
 
