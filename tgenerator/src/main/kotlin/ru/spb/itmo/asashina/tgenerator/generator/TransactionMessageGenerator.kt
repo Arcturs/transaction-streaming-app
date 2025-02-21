@@ -5,6 +5,7 @@ import org.jeasy.random.EasyRandomParameters
 import org.springframework.stereotype.Component
 import ru.spb.itmo.asashina.tgenerator.message.TransactionMessage
 import java.math.BigDecimal
+import java.math.RoundingMode
 import java.time.LocalDateTime
 import java.util.*
 
@@ -17,14 +18,14 @@ class TransactionMessageGenerator {
             originId = CLIENT_IDS.random()
             destinationId = CLIENT_IDS.random()
             timestamp = LocalDateTime.now()
-            amount = BigDecimal(Random().nextDouble(AMOUNT_RANDOM_SEED)).setScale(2)
+            amount = BigDecimal(Random().nextDouble(AMOUNT_RANDOM_SEED)).setScale(2, RoundingMode.HALF_UP)
             originOldBalance = BigDecimal(Random().nextDouble(AMOUNT_EXTENDED_RANDOM_SEED))
                 .plus(amount!!)
-                .setScale(2)
-            originNewBalance = originOldBalance!!.minus(amount!!).setScale(2)
+                .setScale(2, RoundingMode.HALF_UP)
+            originNewBalance = originOldBalance!!.minus(amount!!).setScale(2, RoundingMode.HALF_UP)
             destinationOldBalance = BigDecimal(Random().nextDouble(AMOUNT_EXTENDED_RANDOM_SEED))
                 .minus(amount!!)
-                .setScale(2)
+                .setScale(2, RoundingMode.HALF_UP)
             destinationNewBalance = destinationOldBalance!!.plus(amount!!).setScale(2)
         }
     }
