@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.PostConstruct
 import jakarta.annotation.PreDestroy
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.chunked
@@ -14,8 +13,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
-import org.springframework.transaction.reactive.TransactionalOperator
-import org.springframework.transaction.reactive.executeAndAwait
+import org.springframework.transaction.annotation.Transactional
 import ru.spb.itmo.asashina.tproducer.model.entity.Transaction
 import ru.spb.itmo.asashina.tproducer.repository.TransactionRepository
 import java.util.concurrent.TimeUnit
@@ -24,7 +22,6 @@ import java.util.concurrent.TimeUnit
 class TransactionStreamWebSocketListener(
     private val objectMapper: ObjectMapper,
     private val transactionRepository: TransactionRepository,
-    private val transactionalOperator: TransactionalOperator,
     @Value("\${generator.url}") private val generatorUrl: String
 ) {
 
@@ -59,27 +56,20 @@ class TransactionStreamWebSocketListener(
             .url(generatorUrl)
             .build()
         webSocket = client.newWebSocket(request, listener)
-
-        awaitClose {
-            webSocket?.close(1000, "Spring context closing")
-            client.dispatcher.executorService.use {
-                it.close()
-            }
-        }
     }
 
     @PostConstruct
+    @Transactional
     @OptIn(ExperimentalCoroutinesApi::class)
     fun init() {
         scope.launch {
             while (isActive) {
                 runCatching {
-                    messages
-                        .retryWhen { cause, attempt ->
-                            println("WebSocket error: ${cause.message}, retry #$attempt")
-                            delay(5000)
-                            true
-                        }
+                    messages.retryWhen { cause, attempt ->
+                        println("WebSocket error: ${cause.message}, retry #$attempt")
+                        delay(5000)
+                        true
+                    }
                         .chunked(100)
                         .collect { saveMessages(it) }
                 }.onFailure {
@@ -97,7 +87,7 @@ class TransactionStreamWebSocketListener(
     }
 
     private suspend fun saveMessages(messages: List<String>) {
-        transactionalOperator.executeAndAwait {
+        withContext(Dispatchers.IO) {
             transactionRepository.saveAll(
                 messages.map { objectMapper.readValue(it, Transaction::class.java) }
             )

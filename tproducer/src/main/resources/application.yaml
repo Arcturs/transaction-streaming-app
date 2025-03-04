@@ -1,3 +1,12 @@
-spring.application.name: tproducer
+spring:
+  application.name: tproducer
+  datasource:
+    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5432}/${DATABASE_NAME:transactiondb}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+  liquibase.change-log: classpath:db/changelog/changelog-master.yaml
+  kafka:
+    topic: transaction.messages
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092,localhost:9094}
 
-generator.url: ${GENERATOR_URL:ws://localhost:8080/transactions}
+generator.url: ${GENERATOR_URL:ws://localhost:8081/transactions}
