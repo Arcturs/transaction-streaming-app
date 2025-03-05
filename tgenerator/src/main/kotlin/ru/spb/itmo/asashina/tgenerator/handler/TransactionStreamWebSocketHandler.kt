@@ -50,7 +50,7 @@ class TransactionStreamWebSocketHandler(
                     TextMessage(objectMapper.writeValueAsBytes(it))
                 )
             }
-            delay(500)
+            delay(1_000)
         }
     }
 

@@ -6,7 +6,7 @@ COPY src /opt/build/tproducer/src/
 RUN mvn -f /opt/build/tproducer/pom.xml clean package -B -DskipTests
 
 
-FROM openjdk:23
+FROM eclipse-temurin:23-jdk-alpine
 WORKDIR /opt/app/db
 COPY --from=BUILDER /opt/build/tproducer/target/*.jar /opt/app/tproducer/tproducer.jar
 

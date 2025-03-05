@@ -2,12 +2,6 @@ package ru.spb.itmo.asashina.tproducer.listener
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import jakarta.annotation.PostConstruct
-import jakarta.annotation.PreDestroy
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.flow.chunked
-import kotlinx.coroutines.flow.retryWhen
 import okhttp3.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -25,73 +19,41 @@ class TransactionStreamWebSocketListener(
     @Value("\${generator.url}") private val generatorUrl: String
 ) {
 
-    private val client = OkHttpClient().newBuilder()
-        .readTimeout(500, TimeUnit.MILLISECONDS)
+    private val client = OkHttpClient.Builder()
+        .readTimeout(100, TimeUnit.MILLISECONDS)
         .build()
 
-    private var webSocket: WebSocket? = null
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-
-    val messages: Flow<String> = callbackFlow {
-        val listener = object : WebSocketListener() {
-            override fun onOpen(webSocket: WebSocket, response: Response) {
-                log.info("Connection opened")
-                this@TransactionStreamWebSocketListener.webSocket = webSocket
-            }
-
-            override fun onMessage(webSocket: WebSocket, text: String) {
-                trySend(text)
-            }
-
-            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
-                close()
-            }
-
-            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
-                close(t)
-            }
-        }
-
+    @PostConstruct
+    fun init() {
         val request = Request.Builder()
             .url(generatorUrl)
             .build()
-        webSocket = client.newWebSocket(request, listener)
-    }
+        val listener = object : WebSocketListener() {
+            override fun onOpen(webSocket: WebSocket, response: Response) {
+                log.info("Connected to {}", generatorUrl)
+            }
 
-    @PostConstruct
-    @Transactional
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun init() {
-        scope.launch {
-            while (isActive) {
-                runCatching {
-                    messages.retryWhen { cause, attempt ->
-                        println("WebSocket error: ${cause.message}, retry #$attempt")
-                        delay(5000)
-                        true
-                    }
-                        .chunked(100)
-                        .collect { saveMessages(it) }
-                }.onFailure {
-                    scope.cancel("Spring context shutdown")
-                    webSocket?.close(1000, "Application shutdown")
-                }
+            override fun onMessage(webSocket: WebSocket, text: String) {
+                saveMessage(text)
+            }
+
+            override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
+                log.info("Connection closing: $code/$reason")
+            }
+
+            override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                log.warn("Connection error: {}", t.message, t)
             }
         }
+
+        client.newWebSocket(request, listener)
     }
 
-    @PreDestroy
-    fun cleanup() {
-        scope.cancel("Spring context shutdown")
-        webSocket?.close(1000, "Application shutdown")
-    }
-
-    private suspend fun saveMessages(messages: List<String>) {
-        withContext(Dispatchers.IO) {
-            transactionRepository.saveAll(
-                messages.map { objectMapper.readValue(it, Transaction::class.java) }
-            )
-        }
+    @Transactional
+    fun saveMessage(message: String) {
+        transactionRepository.save(
+            objectMapper.readValue(message, Transaction::class.java)
+        )
     }
 
     private companion object {

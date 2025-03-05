@@ -6,7 +6,7 @@ COPY src /opt/build/tgenerator/src/
 RUN mvn -f /opt/build/tgenerator/pom.xml clean package -B -DskipTests
 
 
-FROM openjdk:23
+FROM eclipse-temurin:23-jdk-alpine
 WORKDIR /opt/app/db
 COPY --from=BUILDER /opt/build/tgenerator/target/*.jar /opt/app/tgenerator/tgenerator.jar
 

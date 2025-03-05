@@ -3,7 +3,8 @@ EXTENSION IF NOT EXISTS "uuid-ossp";
 
 CREATE TABLE transactions
 (
-    id                      UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+    system_id               UUID PRIMARY KEY NOT NULL DEFAULT uuid_generate_v4(),
+    id                      UUID             NOT NULL UNIQUE,
     timestamp               TIMESTAMP        NOT NULL,
     type                    VARCHAR(20)      NOT NULL,
     amount                  DECIMAL(15, 2)   NOT NULL,

@@ -14,52 +14,55 @@ class Transaction {
 
     @get:Id
     @get:Column
-    val id: UUID? = null
+    var systemId: UUID? = null
 
     @get:Column
-    val timestamp: LocalDateTime = LocalDateTime.now()
+    var id: UUID? = null
 
     @get:Column
-    val type: TransactionType? = null
+    var timestamp: LocalDateTime = LocalDateTime.now()
 
     @get:Column
-    val amount: BigDecimal? = null
+    var type: TransactionType? = null
 
     @get:Column
-    val currency: CurrencyType? = null
+    var amount: BigDecimal? = null
 
     @get:Column
-    val originId: UUID? = null
+    var currency: CurrencyType? = null
 
     @get:Column
-    val destinationId: UUID? = null
+    var originId: UUID? = null
 
     @get:Column
-    val originOldBalance: BigDecimal? = null
+    var destinationId: UUID? = null
 
     @get:Column
-    val originNewBalance: BigDecimal? = null
+    var originOldBalance: BigDecimal? = null
 
     @get:Column
-    val destinationOldBalance: BigDecimal? = null
+    var originNewBalance: BigDecimal? = null
 
     @get:Column
-    val destinationNewBalance: BigDecimal? = null
+    var destinationOldBalance: BigDecimal? = null
 
     @get:Column
-    val cardType: CardType? = null
+    var destinationNewBalance: BigDecimal? = null
 
     @get:Column
-    val clientCategory: ClientCategory? = null
+    var cardType: CardType? = null
 
     @get:Column
-    val sex: SexType? = null
+    var clientCategory: ClientCategory? = null
 
     @get:Column
-    val paymentCategory: PaymentCategory? = null
+    var sex: SexType? = null
 
     @get:Column
-    val clientType: ClientType? = null
+    var paymentCategory: PaymentCategory? = null
+
+    @get:Column
+    var clientType: ClientType? = null
 
     override fun equals(other: Any?) = id == (other as? Transaction)?.id
 

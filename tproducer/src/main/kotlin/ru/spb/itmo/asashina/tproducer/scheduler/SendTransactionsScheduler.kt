@@ -6,7 +6,6 @@ import kotlinx.coroutines.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
-import org.springframework.transaction.annotation.Transactional
 import ru.spb.itmo.asashina.tproducer.model.message.KafkaTransactionMessage
 import ru.spb.itmo.asashina.tproducer.producer.KafkaTransactionProducer
 import ru.spb.itmo.asashina.tproducer.repository.TransactionRepository
@@ -19,11 +18,12 @@ class SendTransactionsScheduler(
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    @Transactional
     @PostConstruct
     fun init() {
+        log.info("Here!")
         scope.launch {
-            while (isActive) {
+            log.info("Here!")
+            while (currentCoroutineContext().isActive) {
                 runCatching {
                     sendTransactions()
                     delay(500)
@@ -34,11 +34,12 @@ class SendTransactionsScheduler(
         }
     }
 
-    private suspend fun sendTransactions() {
+    suspend fun sendTransactions() {
         val transactions = withContext(Dispatchers.IO) {
             transactionRepository.getTransactionsInBatch(DEFAULT_BATCH_SIZE)
         }
         if (transactions.isEmpty()) {
+            log.info("no transactions")
             return
         }
 
@@ -57,12 +58,17 @@ class SendTransactionsScheduler(
                 cardType = it.cardType
             }
         }
-            .filter { kafkaProducer.sendMessage(it) }
+            .filter {
+                log.info("sending")
+                kafkaProducer.sendMessage(it)
+            }
             .map { it.id!! }
 
         withContext(Dispatchers.IO) {
             transactionRepository.deleteByIdIn(sentTransactionIds)
         }
+
+        log.info("wow")
     }
 
     @PreDestroy

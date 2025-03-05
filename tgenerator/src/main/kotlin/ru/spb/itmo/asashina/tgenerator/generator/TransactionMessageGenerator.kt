@@ -13,7 +13,7 @@ import java.util.*
 @Component
 class TransactionMessageGenerator {
 
-    fun generateMessages() = List(10_000) {
+    fun generateMessages() = List(800) {
         EASY_RANDOM.nextObject(TransactionMessage::class.java).apply {
             originId = CLIENT_IDS.random()
             destinationId = CLIENT_IDS.random()
@@ -31,8 +31,8 @@ class TransactionMessageGenerator {
     }
 
     private companion object {
-        const val AMOUNT_RANDOM_SEED = 100_000_000_001.00
-        const val AMOUNT_EXTENDED_RANDOM_SEED = 100_000_000_000_001.00
+        const val AMOUNT_RANDOM_SEED = 100_000_1.00
+        const val AMOUNT_EXTENDED_RANDOM_SEED = 100_000_000_1.00
 
         val CLIENT_IDS = List(10_000) { UUID.randomUUID() }
 
