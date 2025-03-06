@@ -1,5 +1,6 @@
 package ru.spb.itmo.asashina.tproducer.repository
 
+import org.springframework.data.jdbc.repository.query.Modifying
 import org.springframework.data.jdbc.repository.query.Query
 import org.springframework.data.repository.CrudRepository
 import org.springframework.stereotype.Repository
@@ -20,6 +21,8 @@ interface TransactionRepository : CrudRepository<Transaction, UUID> {
     )
     fun getTransactionsInBatch(batchSize: Int): List<Transaction>
 
-    fun deleteByIdIn(ids: List<UUID>)
+    @Modifying
+    @Query("delete from transactions where id in (:ids)")
+    fun deleteAllByIdIn(ids: List<UUID>)
 
 }

@@ -1,45 +1,27 @@
 package ru.spb.itmo.asashina.tproducer.scheduler
 
-import jakarta.annotation.PostConstruct
-import jakarta.annotation.PreDestroy
-import kotlinx.coroutines.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.springframework.scheduling.annotation.Async
+import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import ru.spb.itmo.asashina.tproducer.model.message.KafkaTransactionMessage
 import ru.spb.itmo.asashina.tproducer.producer.KafkaTransactionProducer
 import ru.spb.itmo.asashina.tproducer.repository.TransactionRepository
 
+@Async
 @Component
 class SendTransactionsScheduler(
     private val kafkaProducer: KafkaTransactionProducer,
     private val transactionRepository: TransactionRepository
 ) {
 
-    private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
-
-    @PostConstruct
-    fun init() {
-        log.info("Here!")
-        scope.launch {
-            log.info("Here!")
-            while (currentCoroutineContext().isActive) {
-                runCatching {
-                    sendTransactions()
-                    delay(500)
-                }.onFailure {
-                    scope.cancel("Spring context shutdown")
-                }
-            }
-        }
-    }
-
-    suspend fun sendTransactions() {
-        val transactions = withContext(Dispatchers.IO) {
-            transactionRepository.getTransactionsInBatch(DEFAULT_BATCH_SIZE)
-        }
+    @Transactional
+    @Scheduled(fixedDelay = 500)
+    fun sendTransactions() {
+        val transactions = transactionRepository.getTransactionsInBatch(DEFAULT_BATCH_SIZE)
         if (transactions.isEmpty()) {
-            log.info("no transactions")
             return
         }
 
@@ -59,21 +41,11 @@ class SendTransactionsScheduler(
             }
         }
             .filter {
-                log.info("sending")
                 kafkaProducer.sendMessage(it)
             }
             .map { it.id!! }
 
-        withContext(Dispatchers.IO) {
-            transactionRepository.deleteByIdIn(sentTransactionIds)
-        }
-
-        log.info("wow")
-    }
-
-    @PreDestroy
-    fun cleanup() {
-        scope.cancel("Spring context shutdown")
+        transactionRepository.deleteAllByIdIn(sentTransactionIds)
     }
 
     private companion object {

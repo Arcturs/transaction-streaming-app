@@ -15,7 +15,7 @@ class KafkaTransactionProducer(
     private val eventKafkaTemplate: KafkaTemplate<String, KafkaTransactionMessage>
 ) {
 
-    suspend fun sendMessage(message: KafkaTransactionMessage): Boolean {
+    fun sendMessage(message: KafkaTransactionMessage): Boolean {
         return eventKafkaTemplate.send(topic, message)
             .handle { _, exception: Throwable? ->
                 if (exception != null) {
@@ -24,7 +24,7 @@ class KafkaTransactionProducer(
                 }
                 true
             }
-            .await()
+            .join()
     }
 
     private companion object {
