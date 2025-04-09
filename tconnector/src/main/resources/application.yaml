@@ -6,8 +6,12 @@ spring:
       topic: transaction.messages
       group-id: transaction-connector
     producer:
-      bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092,localhost:9094}
-      topic: fraud.transactions
+      fraud-detection:
+        bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092,localhost:9094}
+        topic: fraud.transactions
+      category-stat:
+        bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092,localhost:9094}
+        topic: categories.stats
 
 fraud-detection:
   url: ${FRAUD_DETECTION_API_URL:http://localhost:5001}

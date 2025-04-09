@@ -79,6 +79,18 @@ services:
       - kafka1
       - kafka2
 
+  init-topic-3:
+    image: confluentinc/cp-kafka:7.6.1
+    command: >
+      bash -c "
+      echo 'Waiting for Kafka to be ready...';
+      cub kafka-ready -b kafka1:9092,kafka2:9094 1 60 &&
+      kafka-topics --create --if-not-exists --bootstrap-server kafka1:9092,kafka2:9094 --topic categories.stats --partitions 4 --replication-factor 2 --config retention.ms=604800000
+      "
+    depends_on:
+      - kafka1
+      - kafka2
+
   kafka-ui:
     image: provectuslabs/kafka-ui
     container_name: kafka-ui
@@ -93,6 +105,7 @@ services:
       - kafka2
       - init-topic-1
       - init-topic-2
+      - init-topic-3
 
   postgres:
     image: postgres:15.1-alpine
@@ -152,6 +165,7 @@ services:
       - kafka2
       - init-topic-1
       - init-topic-2
+      - init-topic-3
 
 volumes:
   transactiondb_data:

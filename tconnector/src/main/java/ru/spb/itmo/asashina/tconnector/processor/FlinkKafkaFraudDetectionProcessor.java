@@ -1,6 +1,5 @@
 package ru.spb.itmo.asashina.tconnector.processor;
 
-import jakarta.annotation.PostConstruct;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -41,11 +40,10 @@ public class FlinkKafkaFraudDetectionProcessor {
         this.kafkaFraudDetectionSink = kafkaFraudDetectionSink;
     }
 
-    @PostConstruct
     public void process() throws Exception {
         var env = StreamExecutionEnvironment.getExecutionEnvironment();
         var stream = env.fromSource(
-                        kafkaFraudDetectionSource, WatermarkStrategy.noWatermarks(), "Kafka Source")
+                    kafkaFraudDetectionSource, WatermarkStrategy.noWatermarks(), "Kafka Source")
                 .setParallelism(3)
                 .keyBy(KafkaTransactionMessage::getId)
                 .process(new FraudDetectionFlinkWindowFunction(fraudDetectionApiUrl))

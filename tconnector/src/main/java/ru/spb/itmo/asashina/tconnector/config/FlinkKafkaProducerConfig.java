@@ -6,24 +6,43 @@ import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.formats.json.JsonSerializationSchema;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import ru.spb.itmo.asashina.tconnector.model.message.CategoryStatMessage;
 import ru.spb.itmo.asashina.tconnector.model.message.FraudDetectionResultMessage;
 
 @Configuration
 public class FlinkKafkaProducerConfig {
 
-    private final FlinkKafkaProducerProperties properties;
+    private final FlinkKafkaFraudDetectionProducerProperties fraudDetectionProducerProperties;
+    private final FlinkKafkaCategoryStatsProducerProperties categoryStatsProducerProperties;
 
-    public FlinkKafkaProducerConfig(FlinkKafkaProducerProperties properties) {
-        this.properties = properties;
+    public FlinkKafkaProducerConfig(
+            FlinkKafkaFraudDetectionProducerProperties fraudDetectionProducerProperties,
+            FlinkKafkaCategoryStatsProducerProperties categoryStatsProducerProperties) {
+
+        this.fraudDetectionProducerProperties = fraudDetectionProducerProperties;
+        this.categoryStatsProducerProperties = categoryStatsProducerProperties;
     }
 
     @Bean
     public KafkaSink<FraudDetectionResultMessage> kafkaFraudDetectionSink() {
         return KafkaSink.<FraudDetectionResultMessage>builder()
-                .setBootstrapServers(properties.getBootstrapServers())
+                .setBootstrapServers(fraudDetectionProducerProperties.getBootstrapServers())
                 .setRecordSerializer(KafkaRecordSerializationSchema.builder()
-                        .setTopic(properties.getTopic())
+                        .setTopic(fraudDetectionProducerProperties.getTopic())
                         .setValueSerializationSchema(new JsonSerializationSchema<FraudDetectionResultMessage>())
+                        .build()
+                )
+                .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+                .build();
+    }
+
+    @Bean
+    public KafkaSink<CategoryStatMessage> kafkaCategoryStatsSink() {
+        return KafkaSink.<CategoryStatMessage>builder()
+                .setBootstrapServers(categoryStatsProducerProperties.getBootstrapServers())
+                .setRecordSerializer(KafkaRecordSerializationSchema.builder()
+                        .setTopic(categoryStatsProducerProperties.getTopic())
+                        .setValueSerializationSchema(new JsonSerializationSchema<CategoryStatMessage>())
                         .build()
                 )
                 .setDeliveryGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)

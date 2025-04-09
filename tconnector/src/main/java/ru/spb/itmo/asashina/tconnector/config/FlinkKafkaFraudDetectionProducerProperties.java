@@ -4,8 +4,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan;
 
 @ConfigurationPropertiesScan
-@ConfigurationProperties(prefix = "spring.kafka.producer")
-public class FlinkKafkaProducerProperties {
+@ConfigurationProperties(prefix = "spring.kafka.producer.fraud-detection")
+public class FlinkKafkaFraudDetectionProducerProperties {
 
     private String bootstrapServers;
     private String topic;

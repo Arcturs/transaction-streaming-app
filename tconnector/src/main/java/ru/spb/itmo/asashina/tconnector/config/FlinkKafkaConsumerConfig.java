@@ -20,7 +20,17 @@ public class FlinkKafkaConsumerConfig {
         return KafkaSource.<KafkaTransactionMessage>builder()
                 .setBootstrapServers(properties.getBootstrapServers())
                 .setTopics(properties.getTopic())
-                .setGroupId(properties.getGroupId() + "-8")
+                .setGroupId(properties.getGroupId() + "-0")
+                .setValueOnlyDeserializer(new JsonDeserializationSchema<>(KafkaTransactionMessage.class))
+                .build();
+    }
+
+    @Bean
+    public KafkaSource<KafkaTransactionMessage> kafkaCategoryStatsSource() {
+        return KafkaSource.<KafkaTransactionMessage>builder()
+                .setBootstrapServers(properties.getBootstrapServers())
+                .setTopics(properties.getTopic())
+                .setGroupId(properties.getGroupId() + "-1")
                 .setValueOnlyDeserializer(new JsonDeserializationSchema<>(KafkaTransactionMessage.class))
                 .build();
     }
