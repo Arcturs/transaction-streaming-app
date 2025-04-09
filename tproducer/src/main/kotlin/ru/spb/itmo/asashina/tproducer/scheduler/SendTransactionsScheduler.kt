@@ -38,6 +38,7 @@ class SendTransactionsScheduler(
                 destinationOldBalance = it.destinationOldBalance
                 destinationNewBalance = it.destinationNewBalance
                 cardType = it.cardType
+                paymentCategory = it.paymentCategory
             }
         }
             .filter {

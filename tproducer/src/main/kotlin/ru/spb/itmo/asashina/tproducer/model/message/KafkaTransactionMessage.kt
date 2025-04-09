@@ -1,6 +1,8 @@
 package ru.spb.itmo.asashina.tproducer.model.message
 
-import ru.spb.itmo.asashina.tgenerator.dictionary.*
+import ru.spb.itmo.asashina.tproducer.dictionary.CardType
+import ru.spb.itmo.asashina.tproducer.dictionary.PaymentCategory
+import ru.spb.itmo.asashina.tproducer.dictionary.TransactionType
 import java.math.BigDecimal
 import java.time.LocalDateTime
 import java.util.*
@@ -16,5 +18,6 @@ data class KafkaTransactionMessage(
     var originNewBalance: BigDecimal? = null,
     var destinationOldBalance: BigDecimal? = null,
     var destinationNewBalance: BigDecimal? = null,
-    var cardType: CardType? = null
+    var cardType: CardType? = null,
+    var paymentCategory: PaymentCategory? = null
 )

@@ -3,7 +3,7 @@ package ru.spb.itmo.asashina.tproducer.model.entity
 import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import ru.spb.itmo.asashina.tgenerator.dictionary.*
+import ru.spb.itmo.asashina.tproducer.dictionary.*
 import ru.spb.itmo.asashina.tproducer.model.entity.Transaction.Companion.TABLE_NAME
 import java.math.BigDecimal
 import java.time.LocalDateTime

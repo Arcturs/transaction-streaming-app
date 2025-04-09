@@ -55,7 +55,7 @@ services:
     depends_on:
       - zookeeper
 
-  init-topic:
+  init-topic-1:
     image: confluentinc/cp-kafka:7.6.1
     command: >
         bash -c "
@@ -63,6 +63,18 @@ services:
         cub kafka-ready -b kafka1:9092,kafka2:9094 1 60 &&
         kafka-topics --create --if-not-exists --bootstrap-server kafka1:9092,kafka2:9094 --topic transaction.messages --partitions 4 --replication-factor 2 --config retention.ms=604800000
         "
+    depends_on:
+      - kafka1
+      - kafka2
+
+  init-topic-2:
+    image: confluentinc/cp-kafka:7.6.1
+    command: >
+      bash -c "
+      echo 'Waiting for Kafka to be ready...';
+      cub kafka-ready -b kafka1:9092,kafka2:9094 1 60 &&
+      kafka-topics --create --if-not-exists --bootstrap-server kafka1:9092,kafka2:9094 --topic fraud.transactions --partitions 4 --replication-factor 2 --config retention.ms=604800000
+      "
     depends_on:
       - kafka1
       - kafka2
@@ -79,7 +91,8 @@ services:
     depends_on:
       - kafka1
       - kafka2
-      - init-topic
+      - init-topic-1
+      - init-topic-2
 
   postgres:
     image: postgres:15.1-alpine
@@ -110,7 +123,35 @@ services:
       - kafka1
       - kafka2
       - postgres
-      - init-topic
+      - init-topic-1
+
+  fraud-detection-api:
+    build: ./frauddetection
+    container_name: fraud-detection-api
+    environment:
+      - FLASK_ENV=development
+      - PYTHONUNBUFFERED=True
+    volumes:
+      - ./frauddetection:/frauddetection
+    ports:
+      - "5001:5001"
+    command: python main.py
+
+  t-connector:
+    image: t-connector
+    container_name: t-connector
+    build:
+      context: tconnector/
+    ports:
+      - "8083:8080"
+    environment:
+      KAFKA_BOOTSTRAP_SERVER: host.docker.internal:9092,host.docker.internal:9094
+      FRAUD_DETECTION_API_URL: http://host.docker.internal:5001
+    depends_on:
+      - kafka1
+      - kafka2
+      - init-topic-1
+      - init-topic-2
 
 volumes:
   transactiondb_data:
