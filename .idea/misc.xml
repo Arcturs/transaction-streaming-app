@@ -10,6 +10,7 @@
         <option value="$PROJECT_DIR$/tgenerator/pom.xml" />
         <option value="$PROJECT_DIR$/tproducer/pom.xml" />
         <option value="$PROJECT_DIR$/tconnector/pom.xml" />
+        <option value="$PROJECT_DIR$/tmonitoring/pom.xml" />
       </list>
     </option>
   </component>

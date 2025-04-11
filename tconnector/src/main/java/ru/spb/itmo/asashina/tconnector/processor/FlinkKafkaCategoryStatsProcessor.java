@@ -82,6 +82,7 @@ public class FlinkKafkaCategoryStatsProcessor {
                             .setCategory(s)
                             .setMaxAmount(maxAmount)
                             .setMinAmount(minAmount)
+                            .setTimestamp(System.currentTimeMillis())
                             .setAverageAmount(
                                     sumAmount.divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP)));
         }

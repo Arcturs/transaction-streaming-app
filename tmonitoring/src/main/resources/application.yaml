@@ -1,0 +1,31 @@
+spring:
+  application.name: tmonitoring
+  datasource:
+    url: jdbc:postgresql://${DATABASE_HOST:localhost}:${DATABASE_PORT:5433}/${DATABASE_NAME:transactiondb}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:postgres}
+  liquibase.change-log: classpath:db/changelog/changelog-master.yaml
+  kafka.consumer:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVER:localhost:9092,localhost:9094}
+    partitions: 4
+    fraud-detection:
+      group-id: fraud.transactions.20
+      max-poll-records: 100
+      topic: fraud.transactions
+    category-stats:
+      group-id: categories.stats.20
+      max-poll-records: 15
+      topic: categories.stats
+
+server:
+  port: 8080
+
+management:
+  server.port: 8091
+  endpoint:
+    health.access: read_only
+    info.access: read_only
+    metrics.access: unrestricted
+    prometheus.access: unrestricted
+    loggers.access: read_only
+  endpoints.web.exposure.include: health,info,prometheus,metrics,loggers

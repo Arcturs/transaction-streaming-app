@@ -9,6 +9,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="tproducer" />
         <module name="tconnector" />
+        <module name="tmonitoring" />
         <module name="tgenerator" />
       </profile>
     </annotationProcessing>
@@ -17,6 +18,7 @@
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="tconnector" options="-parameters" />
       <module name="tgenerator" options="-parameters" />
+      <module name="tmonitoring" options="-parameters" />
       <module name="tproducer" options="-parameters" />
     </option>
   </component>
