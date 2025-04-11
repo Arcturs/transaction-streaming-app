@@ -8,19 +8,19 @@ public class CategoryStatMessage {
     private Long count;
     private BigDecimal maxAmount;
     private BigDecimal minAmount;
-    private BigDecimal averageAmount;
+    private BigDecimal sum;
     private Long timestamp;
 
     public CategoryStatMessage(
             String category, Long count,
             BigDecimal maxAmount, BigDecimal minAmount,
-            BigDecimal averageAmount, Long timestamp) {
+            BigDecimal sum, Long timestamp) {
 
         this.category = category;
         this.count = count;
         this.maxAmount = maxAmount;
         this.minAmount = minAmount;
-        this.averageAmount = averageAmount;
+        this.sum = sum;
         this.timestamp = timestamp;
     }
 
@@ -63,12 +63,12 @@ public class CategoryStatMessage {
         return this;
     }
 
-    public BigDecimal getAverageAmount() {
-        return averageAmount;
+    public BigDecimal getSum() {
+        return sum;
     }
 
-    public CategoryStatMessage setAverageAmount(BigDecimal averageAmount) {
-        this.averageAmount = averageAmount;
+    public CategoryStatMessage setSum(BigDecimal sum) {
+        this.sum = sum;
         return this;
     }
 

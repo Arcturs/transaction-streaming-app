@@ -14,7 +14,6 @@ import ru.spb.itmo.asashina.tconnector.model.message.CategoryStatMessage;
 import ru.spb.itmo.asashina.tconnector.model.message.KafkaTransactionMessage;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -83,8 +82,7 @@ public class FlinkKafkaCategoryStatsProcessor {
                             .setMaxAmount(maxAmount)
                             .setMinAmount(minAmount)
                             .setTimestamp(System.currentTimeMillis())
-                            .setAverageAmount(
-                                    sumAmount.divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP)));
+                            .setSum(sumAmount));
         }
 
     }

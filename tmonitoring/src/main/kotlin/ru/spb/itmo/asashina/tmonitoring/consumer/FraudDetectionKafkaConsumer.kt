@@ -24,10 +24,8 @@ class FraudDetectionKafkaConsumer(
     )
     fun process(messages: List<ConsumerRecord<String, ByteArray>>, acknowledgment: Acknowledgment) {
         runCatching {
-            log.info("I have messages!")
             messages.map {
                 val mappedMessage = objectMapper.readValue(it.value(), FraudDetectionKafkaMessage::class.java)
-                log.info("I mapped!")
                 return@map FraudDetectionEntity().apply {
                     id = mappedMessage.id
                     timestamp = mappedMessage.actualTimestamp
@@ -36,7 +34,6 @@ class FraudDetectionKafkaConsumer(
             }
                 .forEach { repository.saveWithoutConflict(it.id!!, it.timestamp!!, it.result!!) }
             acknowledgment.acknowledge()
-            log.info("DONE!")
         }.onFailure {
             log.error("Error in processing messages", it)
         }

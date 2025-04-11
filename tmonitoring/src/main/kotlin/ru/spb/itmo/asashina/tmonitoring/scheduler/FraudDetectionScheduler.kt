@@ -19,7 +19,6 @@ class FraudDetectionScheduler(
     @Scheduled(fixedDelay = 2_500, initialDelay = 1_000)
     fun countTransactionsResult() {
         val results = repository.findActualWithLimit(100)
-        log.info("empty!")
         if (results.isEmpty()) {
             return
         }
@@ -37,7 +36,6 @@ class FraudDetectionScheduler(
                 it.apply { showed = true }
             }
         )
-        log.info("Done!")
     }
 
     private companion object {
